@@ -18,13 +18,22 @@ public class Main{
     //    {2,5}, {2,9}, {3,4}, {3,5}, {4,1},
     //    {4,5}, {5,6}, {5,1}, {6,1}, {6,9},
     //    {7,3}, {7,8}, {8,9}, {8,7}};
-    int size = 15;
-       int n_prefs = 20;
-       int[][] prefs = {{1,3}, {1,5}, {2,5},
-          {2,8}, {2,9}, {3,4}, {3,5}, {4,1},
-          {4,15}, {4,13}, {5,1}, {6,10}, {6,9},
-          {7,3}, {7,5}, {8,9}, {8,7}, {8,14},
-          {9, 13}, {10, 11}};
+
+     int size = 11;
+     int n_prefs = 20;
+     int[][] prefs = {{1,3}, {1,5}, {2,5},
+        {2,8}, {2,9}, {3,4}, {3,5}, {4,1},
+        {4,5}, {4,6}, {5,1}, {6,1}, {6,9},
+        {7,3}, {7,5}, {8,9}, {8,7}, {8,10},
+        {9, 11}, {10, 11}};
+
+    // int size = 15;
+    //    int n_prefs = 20;
+    //    int[][] prefs = {{1,3}, {1,5}, {2,5},
+    //       {2,8}, {2,9}, {3,4}, {3,5}, {4,1},
+    //       {4,15}, {4,13}, {5,1}, {6,10}, {6,9},
+    //       {7,3}, {7,5}, {8,9}, {8,7}, {8,14},
+    //       {9, 13}, {10, 11}};
 
     //domain
     IntVar[] v = new IntVar[size];
@@ -46,15 +55,14 @@ public class Main{
     for(int i = 0; i < n_prefs; i++){
       IntVar c = new IntVar(store, "c", 1, size);
       store.impose(new Distance(v[prefs[i][0]-1], v[prefs[i][1]-1], c));
-      PrimitiveConstraint checkIf1 = new XeqC(c, 1);
-      // store.impose(new IfThenElse(new XltC(c, 2), new XeqC(cost[i], 0), new XeqC(cost[i], 1)));
-      store.impose(new Reified(new XgtC(c, 1), cost[i]));
       dist[i] = c;
+      store.impose(new Reified(new XgtC(c, 1), cost[i]));
+
     }
 
-    // IntVar summan = new IntVar(store, "sum", 1, n_prefs);
-    // Constraint ctr1 = new SumInt(dist, "==", summan);
-    // store.impose(ctr1);
+    IntVar summan = new IntVar(store, "sum", 1, n_prefs);
+    Constraint ctr1 = new Max(dist, summan);
+    store.impose(ctr1);
 
 
 
@@ -64,9 +72,7 @@ public class Main{
 
     Search<IntVar> search = new DepthFirstSearch<IntVar>();
     SelectChoicePoint<IntVar> select = new InputOrderSelect<IntVar>(store, v,new IndomainMin<IntVar>());
-    boolean result = search.labeling(store, select, c);
-
-    System.out.println("HEEEJ: " + dist[2].value());
+    boolean result = search.labeling(store, select, summan);
 
     if( result ){
       System.out.println("number of prefs fulfilled: " + (n_prefs - c.value()));
