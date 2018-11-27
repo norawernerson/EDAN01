@@ -43,26 +43,9 @@ public class Main{
     // int[] cost = {6,1,5,5,3,5,6,4,2};
 
 
-    // IntVar[] v = new IntVar[graph_size];
-    // for( int i = 0; i < graph_size; i++){
-    //   v[i] = new IntVar(store, "v"+i, 1, graph_size);
-    // }
-    //
-    //
-    // Constraint maxCost = new SumInt(cost, "==", maxCost);
-    //
-    // IntVar[] routCost = new IntVar[prefs.length];
-    // for (int i = 0; i < routCost.length; i++){
-    //   routCost[i] = new IntVar(store, 0, maxCost);
-    // }
-
-    // store.impose(new Alldiff());
-
-
     NetworkBuilder net = new NetworkBuilder();
 
     ArrayList<Node> nodeList = new ArrayList<Node>();
-
 
     Node source = net.addNode("source", 1);
     Node sink = net.addNode("sink", -1);
@@ -70,26 +53,34 @@ public class Main{
       nodeList.add(i, net.addNode("n"+Integer.toString(i) , 0));
     }
 
-    IntVar[] flow = new IntVar[n_edges];
+    IntVar[] flow = new IntVar[n_edges*2];
 
     for(int i = 0; i < n_edges; i++){
-      flow[i] = new IntVar(store, "E"+i, 0, 100);
+      flow[i] = new IntVar(store, "E"+i, 0, n_dests);
+      flow[i+n_edges] = new IntVar(store, "B"+i, 0, n_dests);
       System.out.println(flow[i]+"  cost = "+cost[i]);
+      net.addArc(nodeList.get(to[i]-1), nodeList.get(from[i]-1), cost[i], flow[i+n_edges]);
       net.addArc(nodeList.get(from[i]-1), nodeList.get(to[i]-1), cost[i], flow[i]);
-      //net.addArc(nodeList.get(to[i]-1), nodeList.get(from[i]-1), cost[i], flow[i]);
     }
     // flow[n_edges] = new IntVar(store, "E"+n_edges, 0, 100);
     // flow[n_edges+1] = new IntVar(store, "E"+n_edges+1, 0, 100);
-    net.addArc(source, nodeList.get(start-1), 0, 1, 1);
-    net.addArc(nodeList.get(dest[0]-1), sink, 0, 1, 1);
+    net.addArc(source, nodeList.get(start-1), 0, n_dests, n_dests);
+
+    for(int i = 0; i < n_dests; i++){
+      net.addArc(nodeList.get(dest[i]-1), sink, 0, 1, 1);
+    }
 
     IntVar cost1 = new IntVar(store, "cost", 0, 1000);
     net.setCostVariable(cost1);
 
-    IntVar[] costArray = new IntVar[n_edges];
+    IntVar[] costArray = new IntVar[n_edges*2];
     for(int i = 0; i < costArray.length; i++){
       IntVar z = new IntVar(store, "sum", 0, 10000);
-      costArray[i] = new IntVar(store, "c"+i, 0, cost[i]*flow[i].value());
+      costArray[i] = new IntVar(store, "c"+i, 0, 10000);
+      store.impose(new XmulCeqZ(flow[i], cost[i%n_edges], costArray[i]));
+    }
+
+    for(int i = 0; i < costArray.length; i++){
     }
 
     Constraint c = new NetworkFlow(net);
@@ -99,11 +90,12 @@ public class Main{
 
     Search<IntVar> search = new DepthFirstSearch<IntVar>();
     SelectChoicePoint<IntVar> select = new InputOrderSelect<IntVar>(store,flow, new IndomainMin<IntVar>());
-    boolean result = search.labeling(store, select, sum); // sista variabeln måste vara en IntVar
+    boolean result = search.labeling(store, select, cost1); // sista variabeln måste vara en IntVar
 
     if( result ){
-      System.out.println(java.util.Arrays.asList(flow));
-      System.out.println(nodeList);
+      System.out.println("Summan: " + sum);
+      // System.out.println(java.util.Arrays.asList(flow));
+      // System.out.println(nodeList);
       System.out.println("Solved");
 
     } else{
