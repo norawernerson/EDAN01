@@ -15,40 +15,40 @@ public class Main{
   public static void main(String[] args){
     Store store = new Store();
 
-    int graph_size = 6;
-    int start = 1;
-    int n_dests = 1;
-    int[] dest = {6};
-    int n_edges = 7;
-    int[] from = {1,1,2,2,3,4,4};
-    int[] to = {2,3,3,4,5,5,6};
-    int[] cost = {4,2,5,10,3,4,11};
-
     // int graph_size = 6;
     // int start = 1;
-    // int n_dests = 2;
-    // int[] dest = {5,6};
+    // int n_dests = 1;
+    // int[] dest = {6};
     // int n_edges = 7;
-    // int[] from = {1,1,2, 2,3,4, 4};
-    // int[] to = {2,3,3, 4,5,5, 6};
+    // int[] from = {1,1,2,2,3,4,4};
+    // int[] to = {2,3,3,4,5,5,6};
     // int[] cost = {4,2,5,10,3,4,11};
 
     // int graph_size = 6;
     // int start = 1;
     // int n_dests = 2;
-    // int[] dest = {5,6};
-    // int n_edges = 9;
-    // int[] from = {1,1,1,2,2,3,3,3,4};
-    // int[] to = {2,3,4,3,5,4,5,6,6};
-    // int[] cost = {6,1,5,5,3,5,6,4,2};
+    // int[] dest = {6,5};
+    // int n_edges = 7;
+    // int[] from = {1,1,2,2,3,4,4};
+    // int[] to = {2,3,3,4,5,5,6};
+    // int[] cost = {4,2,5,10,3,4,11};
+
+    int graph_size = 6;
+    int start = 1;
+    int n_dests = 2;
+    int[] dest = {5,6};
+    int n_edges = 9;
+    int[] from = {1,1,1,2,2,3,3,3,4};
+    int[] to = {2,3,4,3,5,4,5,6,6};
+    int[] cost = {6,1,5,5,3,5,6,4,2};
 
 
     NetworkBuilder net = new NetworkBuilder();
 
     ArrayList<Node> nodeList = new ArrayList<Node>();
 
-    Node source = net.addNode("source", 1);
-    Node sink = net.addNode("sink", -1);
+    Node source = net.addNode("source", n_dests);
+    Node sink = net.addNode("sink", -2);
     for (int i = 0; i < graph_size; i++){
       nodeList.add(i, net.addNode("n"+Integer.toString(i) , 0));
     }
@@ -77,10 +77,8 @@ public class Main{
     for(int i = 0; i < costArray.length; i++){
       IntVar z = new IntVar(store, "sum", 0, 10000);
       costArray[i] = new IntVar(store, "c"+i, 0, 10000);
+      store.impose(new Reified(new XgtC(flow[i], 0), new IntVar(store, "sum", 0, 1)));
       store.impose(new XmulCeqZ(flow[i], cost[i%n_edges], costArray[i]));
-    }
-
-    for(int i = 0; i < costArray.length; i++){
     }
 
     Constraint c = new NetworkFlow(net);
@@ -94,7 +92,7 @@ public class Main{
 
     if( result ){
       System.out.println("Summan: " + sum);
-      // System.out.println(java.util.Arrays.asList(flow));
+      System.out.println(java.util.Arrays.asList(flow));
       // System.out.println(nodeList);
       System.out.println("Solved");
 
