@@ -48,7 +48,7 @@ public class Main{
     ArrayList<Node> nodeList = new ArrayList<Node>();
 
     Node source = net.addNode("source", n_dests);
-    Node sink = net.addNode("sink", -2);
+    Node sink = net.addNode("sink", -n_dests);
     for (int i = 0; i < graph_size; i++){
       nodeList.add(i, net.addNode("n"+Integer.toString(i) , 0));
     }
@@ -62,8 +62,6 @@ public class Main{
       net.addArc(nodeList.get(to[i]-1), nodeList.get(from[i]-1), cost[i], flow[i+n_edges]);
       net.addArc(nodeList.get(from[i]-1), nodeList.get(to[i]-1), cost[i], flow[i]);
     }
-    // flow[n_edges] = new IntVar(store, "E"+n_edges, 0, 100);
-    // flow[n_edges+1] = new IntVar(store, "E"+n_edges+1, 0, 100);
     net.addArc(source, nodeList.get(start-1), 0, n_dests, n_dests);
 
     for(int i = 0; i < n_dests; i++){
@@ -75,25 +73,21 @@ public class Main{
 
     IntVar[] costArray = new IntVar[n_edges*2];
     for(int i = 0; i < costArray.length; i++){
-      IntVar z = new IntVar(store, "sum", 0, 10000);
       costArray[i] = new IntVar(store, "c"+i, 0, 10000);
-      store.impose(new Reified(new XgtC(flow[i], 0), new IntVar(store, "sum", 0, 1)));
-      store.impose(new XmulCeqZ(flow[i], cost[i%n_edges], costArray[i]));
+      IntVar b = new IntVar(store, "sum", 0, 1);
+      store.impose(new Reified(new XgtC(flow[i], 0), b));
+      store.impose(new XmulCeqZ(b, cost[i%n_edges], costArray[i])); //Kan göras med LinearInt
     }
 
-    Constraint c = new NetworkFlow(net);
-    store.impose(c);
+    store.impose(new NetworkFlow(net));
     IntVar sum = new IntVar(store, "sum", 0, 10000);
     store.impose(new SumInt(store, costArray, "==", sum));
 
     Search<IntVar> search = new DepthFirstSearch<IntVar>();
     SelectChoicePoint<IntVar> select = new InputOrderSelect<IntVar>(store,flow, new IndomainMin<IntVar>());
-    boolean result = search.labeling(store, select, cost1); // sista variabeln måste vara en IntVar
+    boolean result = search.labeling(store, select, sum); // sista variabeln måste vara en IntVar
 
     if( result ){
-      System.out.println("Summan: " + sum);
-      System.out.println(java.util.Arrays.asList(flow));
-      // System.out.println(nodeList);
       System.out.println("Solved");
 
     } else{
