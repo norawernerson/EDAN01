@@ -1,4 +1,3 @@
-% Auto Regression filter
 % int : del_add;
 del_add = 1;
 % int : del_mul;
@@ -49,5 +48,3 @@ dependencies = [
 {},
 {},
 ];
-
-

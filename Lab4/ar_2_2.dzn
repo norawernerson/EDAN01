@@ -1,13 +1,12 @@
-% Auto Regression filter
 % int : del_add;
 del_add = 1;
 % int : del_mul;
 del_mul = 2;
 
 % int : number_add;
-number_add = 1;
+number_add = 2;
 % int : number_mul;
-number_mul = 1;
+number_mul = 2;
 
 % int : n; % number of operations
 n = 28;
@@ -49,5 +48,3 @@ dependencies = [
 {},
 {},
 ];
-
-
