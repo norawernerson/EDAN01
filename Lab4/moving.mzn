@@ -9,12 +9,23 @@ int: available_handlers;
 int: available_trolleys;
 int: available_time;
 
+OBJECTS = { piano, fridge, doublebed, singlebed,
+            wardrobe, chair1, chair2, table };
+
+duration = [60, 45, 30, 30, 20, 15, 15, 15];
+handlers = [3, 2, 2, 1, 2, 1, 1, 2];
+trolleys = [2, 1, 2, 2, 2, 0, 0, 1];
+
+available_time = 180;
+available_handlers = 4;
+available_trolleys = 3;
+
 array[OBJECTS] of var 0..available_time: start;
 var 0..available_time: end;
 
 constraint cumulative(start, duration, handlers, available_handlers);
 constraint cumulative(start, duration, trolleys, available_trolleys);
- 
+
 constraint forall(o in OBJECTS)(start[o] +duration[o] <= end);
 
 solve minimize end;
