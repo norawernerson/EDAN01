@@ -1,5 +1,5 @@
 /**
- *  SplitDFS.java
+ *  SplitDFS2.java
  *  This file is part of JaCoP.
  *
  *  JaCoP is a Java Constraint Programming solver.
@@ -31,7 +31,7 @@
 
 import org.jacop.constraints.Not;
 import org.jacop.constraints.PrimitiveConstraint;
-import org.jacop.constraints.XlteqC;
+import org.jacop.constraints.XgteqC;
 import org.jacop.core.FailException;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
@@ -44,7 +44,7 @@ import org.jacop.core.Store;
  * @version 4.1
  */
 
-public class SplitDFS {
+public class SplitDFS2 {
 
   boolean trace = false;
   /**
@@ -72,12 +72,13 @@ public class SplitDFS {
    * It represents the cost variable.
    */
   public IntVar costVariable = null;
-  public SplitDFS(Store s) {
+  public SplitDFS2(Store s) {
     store = s;
   }
   /**
    * This function is called recursively to assign variables one by one.
    */
+
   public boolean label(IntVar[] vars) {
           nodes++;
           if (trace) {
@@ -207,6 +208,7 @@ public class SplitDFS {
      * example variable selection; input order
      */
     IntVar selectVariable(IntVar[] v) {
+
       if (v.length != 0) {
               if(v[0].singleton()){
                 searchVariables = new IntVar[v.length-1];
@@ -231,7 +233,7 @@ public class SplitDFS {
      * example value selection; indomain_min
      */
     int selectValue(IntVar v) {
-      return (v.min()+v.max())/2;
+      return (v.min()+v.max()+1)/2;
     }
 
     /**
@@ -239,7 +241,7 @@ public class SplitDFS {
      */
     public PrimitiveConstraint getConstraint() {
       //System.out.println(var + " <= "+value);
-            return new XlteqC(var, value);
+            return new XgteqC(var, value);
     }
   }
 }

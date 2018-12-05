@@ -169,11 +169,12 @@ public void model() {
 
         IntVar cost = numbers[numbers.length - 1];
 
-        SimpleDFS search = new SimpleDFS(store);
+        SplitDFS2 search = new SplitDFS2(store);
         search.setVariablesToReport(numbers);
         search.setCostVariable(cost);
 
         boolean result = search.label(numbers);
+        search.print();
 
         System.out.println (result);
 
