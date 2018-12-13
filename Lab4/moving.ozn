@@ -1,0 +1,4 @@
+output ["start = "++format(start)++"\nend = "++format(end)++"\n"];
+set of int: OBJECTS = 1..8;
+array [OBJECTS] of int: start;
+int: end;
