@@ -1,3 +1,5 @@
+include "cumulative.mzn";
+
 % Auto Regression filter
 int : del_add;
 del_add = 1;
@@ -50,9 +52,21 @@ dependencies = [
 {},
 ];
 
+=======
 % precedence constraints
 % impose t_i + 1/2 ≤ t_j där j är från dependencies
 array[1..n] of var 0..1000 : t;
+% Constraints
+
+%Make sure that they do not overlap
+constraint diff2(add)
+constraint diff2(mul)
+
+
+
+
+constraint cumulative(....)
+
 
 %constraint forall(o in OBJECTS)(start[o] +duration[o] <= end);
 constraint forall(i in 1..n, j in dependencies[i])(
